@@ -1,0 +1,20 @@
+[
+    {
+        "errorCode": "1001",
+        "errorMessage": "bassni2Pout the max limit of pyramid size is 10"
+    },
+    {
+        "errorCode": "1002",
+        "errorMessage": "bassni2Pout the pyramid exceed twitch message limit"
+    }, 
+    {
+        "errorCode": "1003",
+        "errorMessage": "bassni2Erm encountered some error while searching for the definition"
+    },
+    {
+        
+        "errorCode": "1004",
+        "errorMessage": "bassni2Blind No Definitions Found"
+    }
+    
+]
