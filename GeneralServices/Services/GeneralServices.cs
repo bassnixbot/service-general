@@ -8,11 +8,11 @@ namespace GeneralServices.Services;
 
 public static class Services
 {
-    public static async Task<ApiResponse<string>> BuildFill(string message)
+    public static async Task<ApiResponse<string>> BuildFill(ClientInfo request)
     {
-        var response = new ApiResponse<string>();
+        var response = new ApiResponse<string>() {responseType = ApiResponseType.reply};
         int maxwords = 500;
-        var joinedWord = $"{message} ";
+        var joinedWord = $"{request.message} ";
         var temp = "";
         var fillwords = "";
 
@@ -25,17 +25,19 @@ public static class Services
         } while (temp.Length < maxwords);
 
         response.result = fillwords;
+        response.success = true;
         return response;
     }
 
-    public static async Task<ApiResponse<List<string>>> BuildPyramid(string message)
+    public static async Task<ApiResponse<List<string>>> BuildPyramid(ClientInfo request)
     {
         var response = new ApiResponse<List<string>>()
         {
             success = false,
-            responsetype = "message.array"
+            responseType = UtilsLib.ApiResponseType.message_array 
         };
 
+        var message = request.message;
         List<string> messages = message.Split(' ').ToList();
         int pyramidSize = 0;
         var isSizeArgsExist = int.TryParse(messages[0], out pyramidSize);
@@ -91,13 +93,17 @@ public static class Services
         return response;
     }
 
-    public static async Task<ApiResponse<string>> BuildTuck(string message)
+    public static async Task<ApiResponse<string>> BuildTuck(ClientInfo request)
     {
-        var response = new ApiResponse<string> { success = true };
+        var response = new ApiResponse<string> { success = true, responseType = ApiResponseType.reply };
+
+        var message = request.message;
         List<string> messages = message.Split(' ').ToList();
+        
         string receiver = messages[0];
         messages.RemoveAt(0);
         message = string.Join(" ", messages);
+        
         string tuckMessage = "";
 
         if (messages.Count() == 0)
@@ -114,9 +120,11 @@ public static class Services
         return response;
     }
 
-    public static async Task<ApiResponse<string>> BuildUrban(string message)
+    public static async Task<ApiResponse<string>> BuildUrban(ClientInfo request)
     {
-        var response = new ApiResponse<string>() { success = false };
+        var response = new ApiResponse<string>() { success = false, responseType = ApiResponseType.reply };
+
+        var message = request.message;
         using (var client = new HttpClient())
         {
             var baseUrl = $"https://api.urbandictionary.com";
@@ -164,8 +172,7 @@ public static class Services
     }
 
     public static async Task<ApiResponse<string>> BuildLink(
-        string message,
-        ChatterInformation chatterInfo,
+        ClientInfo request,
         ApplicationDBContext context
     )
     {
@@ -174,10 +181,10 @@ public static class Services
         var newLink = new Link
         {
             recid = Guid.NewGuid(),
-            username = chatterInfo.username,
-            chatterid = chatterInfo.chatterid,
-            fromChannel = chatterInfo.fromChannel,
-            message = message,
+            username = request.userInfo.userName,
+            chatterid = request.userInfo.userId,
+            fromChannel = request.channel,
+            message = request.message,
             savedateutc = DateTime.UtcNow
         };
 
@@ -186,7 +193,7 @@ public static class Services
 
         response.success = true;
         response.result =
-            $"{chatterInfo.username}'s link from {chatterInfo.fromChannel} channel has been successfully saved on {DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8))} (gmt+8)";
+            $"{request.userInfo.userName}'s link from {request.channel} channel has been successfully saved on {DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8))} (gmt+8)";
 
         return response;
     }
@@ -195,7 +202,7 @@ public static class Services
     {
         var errorList = UtilsClient.GetErrorList;
         var errorDetail = errorList
-            .Where(x => x.errorCode == errorCode)
+            .Where(x => x.errorCode == $"GeneralService-{errorCode}")
             .SingleOrDefault();
 
         if (errorDetail != null)
