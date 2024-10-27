@@ -24,7 +24,7 @@ public class GeneralController : ControllerBase
     [HttpPost("fill")]
     public async Task<ActionResult> Fill(ClientInfo request)
     {
-        var cdKey = $"fill-{request.channel}";
+        var cdKey = $"fill-{request.channel}-{request.userInfo.userName}";
         if (_cooldownService.IsCooldownActive(cdKey))
         { 
             // Cooldown is active, respond with 429 Too Many Requests
@@ -50,7 +50,7 @@ public class GeneralController : ControllerBase
     [HttpPost("pyramid")]
     public async Task<ActionResult> Pyramid(ClientInfo request)
     {
-        var cdKey = $"fill-{request.channel}";
+        var cdKey = $"fill-{request.channel}-{request.userInfo.userName}";
         if (_cooldownService.IsCooldownActive(cdKey))
         { 
             // Cooldown is active, respond with 429 Too Many Requests
