@@ -35,6 +35,7 @@ public static class Services
 
     public static async Task<ApiResponse<List<string>>> BuildPyramid(ClientInfo request)
     {
+        Console.WriteLine("Hit");
         var response = new ApiResponse<List<string>>()
         {
             success = false,

@@ -14,6 +14,7 @@ builder.Services.AddWatchDogServices(opt =>
     opt.DbDriverOption = WatchDogDbDriverEnum.PostgreSql;
 });
 
+builder.Services.AddSingleton<CooldownService>(); // Register the cooldown service as a singleton
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDBContext>(opt =>
