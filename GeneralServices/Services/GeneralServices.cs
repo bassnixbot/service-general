@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using GeneralServices.DB;
 using GeneralServices.Models;
 using Newtonsoft.Json;
@@ -10,13 +11,14 @@ public static class Services
 {
     public static async Task<ApiResponse<string>> BuildFill(ClientInfo request)
     {
-        var response = new ApiResponse<string>() {responseType = ApiResponseType.reply};
+        var response = new ApiResponse<string>() { responseType = ApiResponseType.reply };
         int maxwords = 500;
         var joinedWord = $"{request.message} ";
         var temp = "";
         var fillwords = "";
 
-        if (joinedWord[0] == '!') {
+        if (joinedWord[0] == '!')
+        {
             return response;
         }
 
@@ -39,15 +41,16 @@ public static class Services
         var response = new ApiResponse<List<string>>()
         {
             success = false,
-            responseType = UtilsLib.ApiResponseType.message_array 
+            responseType = UtilsLib.ApiResponseType.message_array
         };
 
         var message = request.message;
         List<string> messages = message.Split(' ').ToList();
         int pyramidSize = 0;
         var isSizeArgsExist = int.TryParse(messages[0], out pyramidSize);
-        
-        if (message[0] == '!') {
+
+        if (message[0] == '!')
+        {
             return response;
         }
 
@@ -104,15 +107,19 @@ public static class Services
 
     public static async Task<ApiResponse<string>> BuildTuck(ClientInfo request)
     {
-        var response = new ApiResponse<string> { success = true, responseType = ApiResponseType.reply };
+        var response = new ApiResponse<string>
+        {
+            success = true,
+            responseType = ApiResponseType.reply
+        };
 
         var message = request.message;
         List<string> messages = message.Split(' ').ToList();
-        
+
         string receiver = messages[0];
         messages.RemoveAt(0);
         message = string.Join(" ", messages);
-        
+
         string tuckMessage = "";
 
         if (messages.Count() == 0)
@@ -131,7 +138,11 @@ public static class Services
 
     public static async Task<ApiResponse<string>> BuildUrban(ClientInfo request)
     {
-        var response = new ApiResponse<string>() { success = false, responseType = ApiResponseType.reply };
+        var response = new ApiResponse<string>()
+        {
+            success = false,
+            responseType = ApiResponseType.reply
+        };
 
         var message = request.message;
         using (var client = new HttpClient())
@@ -205,6 +216,38 @@ public static class Services
             $"{request.userInfo.userName}'s link from {request.channel} channel has been successfully saved on {DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(8))} (gmt+8)";
 
         return response;
+    }
+
+    public static async Task<ApiResponse<string>> PickAsync(ClientInfo request)
+    { 
+        var response = new ApiResponse<string>
+        {
+            success = true,
+            responseType = ApiResponseType.reply
+        };
+ 
+        var message = request.message;
+        List<string> messages = message.Split(' ').ToList();
+        
+        var messageCount = messages.Count;
+
+        // Generate a random number using RandomNumberGenerator
+        int randomPickIndex;
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            var randomNumber = new byte[4];
+            rng.GetBytes(randomNumber);
+            randomPickIndex = BitConverter.ToInt32(randomNumber, 0) % messageCount;
+
+            // Ensure index is positive
+            if (randomPickIndex < 0)
+                randomPickIndex = -randomPickIndex;
+        }
+
+        var pick = messages[randomPickIndex];
+        
+        response.result = pick;
+        return response; 
     }
 
     private static Error HandleError(string errorCode)

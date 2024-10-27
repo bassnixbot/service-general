@@ -84,5 +84,16 @@ public class GeneralController : ControllerBase
             return StatusCode(500, output);
 
         return Ok(output);
+    } 
+
+    [HttpPost("pick")]
+    public async Task<ActionResult> Pick(ClientInfo request)
+    {
+        var output = await Services.Services.PickAsync(request);
+
+        if (!output.success)
+            return StatusCode(500, output);
+
+        return Ok(output);
     }
 }
