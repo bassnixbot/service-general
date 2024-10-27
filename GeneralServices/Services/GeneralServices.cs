@@ -16,6 +16,10 @@ public static class Services
         var temp = "";
         var fillwords = "";
 
+        if (joinedWord[0] == '!') {
+            return response;
+        }
+
         do
         {
             temp = string.Concat(temp, joinedWord);
@@ -41,6 +45,10 @@ public static class Services
         List<string> messages = message.Split(' ').ToList();
         int pyramidSize = 0;
         var isSizeArgsExist = int.TryParse(messages[0], out pyramidSize);
+        
+        if (message[0] == '!') {
+            return response;
+        }
 
         // if there's no argument we put the default size at 3
         if (isSizeArgsExist)
